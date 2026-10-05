@@ -15,14 +15,15 @@ from app.schemas.ticket import (
     TicketUpdate,
 )
 from app.services import ticket_service
+from app.services.embeddings import Embedder, get_embedder
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 Conn = Annotated[psycopg.Connection, Depends(get_conn)]
-
+EmbedderDep = Annotated[Embedder, Depends(get_embedder)]
 
 @router.post("", response_model=TicketOut, status_code=201)
-def create_ticket(data: TicketCreate, conn: Conn):
-    return ticket_service.create_ticket(conn, data)
+def create_ticket(data: TicketCreate, conn: Conn, embedder: EmbedderDep):
+    return ticket_service.create_ticket(conn, data, embedder)
 
 
 @router.get("", response_model=TicketPage)

@@ -7,6 +7,7 @@ import psycopg
 from app.core.errors import InvalidTransitionError, NotFoundError
 from app.repositories import ticket_repo
 from app.schemas.ticket import TicketCreate, TicketUpdate
+from app.services.embeddings import Embedder, build_ticket_text
 
 # Lifecycle: new -> classified -> assigned -> in_progress -> resolved -> closed
 ALLOWED_TRANSITIONS: dict[str, set[str]] = {
@@ -23,14 +24,17 @@ def can_transition(current: str, new: str) -> bool:
     return new in ALLOWED_TRANSITIONS.get(current, set())
 
 
-def create_ticket(conn: psycopg.Connection, data: TicketCreate) -> dict:
+def create_ticket(conn: psycopg.Connection, data: TicketCreate, embedder: Embedder) -> dict:
+    subject, body = data.subject.strip(), data.body.strip()
+    embedding = embedder.embed_text(build_ticket_text(subject, body))
     queue_length = ticket_repo.count_open(conn)  # real feature for the SLA model later
     row = ticket_repo.insert(
         conn,
-        subject=data.subject.strip(),
-        body=data.body.strip(),
+        subject=subject,
+        body=body,
         customer_email=data.customer_email.lower(),
         queue_length=queue_length,
+        embedding=embedding,
     )
     conn.commit()
     return row
