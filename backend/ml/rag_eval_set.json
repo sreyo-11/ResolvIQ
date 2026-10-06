@@ -1,0 +1,28 @@
+{
+  "answerable": [
+    {"q": "I see two charges for my Pro subscription this month", "title": "Why was I charged twice?"},
+    {"q": "How do I get my money back for the annual plan I bought last week?", "title": "How to request a refund"},
+    {"q": "My card keeps getting declined, where can I add a new one and get a GST invoice?", "title": "Updating payment methods and downloading invoices"},
+    {"q": "I never received the email to reset my password", "title": "Resetting your password"},
+    {"q": "Authenticator codes are rejected and I lost my phone", "title": "Two-factor authentication setup and recovery"},
+    {"q": "Someone logged in from another country, how do I secure or delete my account", "title": "Locked accounts, suspicious logins and account deletion"},
+    {"q": "The mobile app keeps crashing right after I open it", "title": "Troubleshooting crashes and freezes"},
+    {"q": "Everything is very slow and my files will not sync between devices", "title": "Slow performance and sync problems"},
+    {"q": "Upload fails with error 500 and my big export never arrives", "title": "Export and upload errors"},
+    {"q": "Where is my parcel, the tracking page has not changed in days", "title": "Tracking your order"},
+    {"q": "Courier says it was delivered but nothing arrived", "title": "Missing, delayed or damaged packages"},
+    {"q": "I want to send an item back and change my delivery address", "title": "Returns, exchanges and address changes"},
+    {"q": "Our webhook endpoint keeps returning 502 errors", "title": "Webhooks: delivery, retries and 5xx errors"},
+    {"q": "API calls return 401 and sometimes 429", "title": "API keys, authentication and rate limits"},
+    {"q": "Slack integration disconnected and Salesforce creates duplicate contacts", "title": "Connecting Slack, Zapier, Salesforce and Google Calendar"},
+    {"q": "Do you offer student discounts and what does enterprise cost", "title": "Plans, pricing and discounts"},
+    {"q": "Can I book a demo and get your data processing agreement", "title": "Demos, security documents and data processing agreements"},
+    {"q": "How can I suggest a new feature like dark mode", "title": "Feature requests and feedback"}
+  ],
+  "unanswerable": [
+    "What is the capital of France?",
+    "Can you recommend a good pizza recipe?",
+    "Write me a poem about autumn",
+    "What will the weather be like in Mumbai tomorrow?"
+  ]
+}

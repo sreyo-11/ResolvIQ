@@ -2,10 +2,20 @@ import logging
 from uuid import UUID
 
 from app.core.db import get_pool
+from app.core.config import settings
+from app.services import extraction, rag
 
 log = logging.getLogger(__name__)
 
-_STAGES: list[tuple[str, callable]] = []  # (name, fn(conn, ticket_id))
+def _extract(conn, ticket_id):
+    extraction.run_extraction(conn, ticket_id)
+
+
+def _draft(conn, ticket_id):
+    if settings.auto_draft:
+        rag.draft_reply(conn, ticket_id)
+
+_STAGES: list[tuple[str, callable]] = [("extract", _extract), ("draft", _draft)]  # (name, fn(conn, ticket_id))
 
 
 def enrich_ticket(ticket_id: UUID) -> None:

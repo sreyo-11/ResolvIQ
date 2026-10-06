@@ -18,6 +18,7 @@ from app.schemas.ticket import (
 )
 from app.services import ticket_service
 from app.services.embeddings import Embedder, get_embedder
+from app.services import extraction
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 Conn = Annotated[psycopg.Connection, Depends(get_conn)]
@@ -65,3 +66,7 @@ def create_ticket(data: TicketCreate, conn: Conn, embedder: EmbedderDep, backgro
 def classify_ticket(ticket_id: UUID, conn: Conn):
     """Re-run triage, for example after an agent edits the ticket text."""
     return triage_service.triage_ticket(conn, ticket_id)
+
+@router.post("/{ticket_id}/extract", response_model=TicketOut)
+def extract_ticket(ticket_id: UUID, conn: Conn):
+    return extraction.run_extraction(conn, ticket_id)

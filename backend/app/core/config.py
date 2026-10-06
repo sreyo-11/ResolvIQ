@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # --- AI behaviour ---
     category_threshold: float = 0.6   # below this -> LLM fallback / human triage
     priority_threshold: float = 0.5
-    kb_min_similarity: float = 0.35   # below this -> refuse to draft (tune with ml.eval_rag)
+    kb_min_similarity: float = 0.30   # below this -> refuse to draft (tune with ml.eval_rag)
     rag_top_k: int = 4
     auto_enrich: bool = True          # run the background pipeline on new tickets
     auto_draft: bool = True
