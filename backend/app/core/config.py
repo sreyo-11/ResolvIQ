@@ -18,6 +18,22 @@ class Settings(BaseSettings):
     db_pool_min: int = 1
     db_pool_max: int = 5
 
+    # --- LLM providers ---
+    llm_provider: str = "groq"  # groq | gemini
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.1-8b-instant"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash-lite"
+
+    # --- AI behaviour ---
+    category_threshold: float = 0.6   # below this -> LLM fallback / human triage
+    priority_threshold: float = 0.5
+    kb_min_similarity: float = 0.35   # below this -> refuse to draft (tune with ml.eval_rag)
+    rag_top_k: int = 4
+    auto_enrich: bool = True          # run the background pipeline on new tickets
+    auto_draft: bool = True
+    trend_z_threshold: float = 3.0
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

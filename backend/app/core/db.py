@@ -46,3 +46,9 @@ def get_conn() -> Iterator[psycopg.Connection]:
     """FastAPI dependency: one pooled connection per request."""
     with get_pool().connection() as conn:
         yield conn
+
+def standalone_connection() -> psycopg.Connection:
+    """One-off connection for scripts/jobs that run outside the FastAPI process."""
+    conn = psycopg.connect(settings.database_url, row_factory=dict_row, prepare_threshold=None)
+    register_vector(conn)
+    return conn

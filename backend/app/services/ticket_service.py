@@ -8,6 +8,7 @@ from app.core.errors import InvalidTransitionError, NotFoundError
 from app.repositories import ticket_repo
 from app.schemas.ticket import TicketCreate, TicketUpdate
 from app.services.embeddings import Embedder, build_ticket_text
+from app.repositories import agent_repo
 
 # Lifecycle: new -> classified -> assigned -> in_progress -> resolved -> closed
 ALLOWED_TRANSITIONS: dict[str, set[str]] = {
@@ -67,9 +68,13 @@ def update_ticket(conn: psycopg.Connection, ticket_id: UUID, patch: TicketUpdate
             changes["first_response_at"] = now  # captured for SLA tracking
         if new_status == "resolved":
             changes["resolved_at"] = now
+            if current["assigned_agent_id"]:
+                agent_repo.adjust_load(conn, current["assigned_agent_id"], -1)
         if current["status"] == "resolved" and new_status == "in_progress":  # reopen
             changes["resolved_at"] = None
             changes["reopen_count"] = current["reopen_count"] + 1
+            if current["assigned_agent_id"]:
+                agent_repo.adjust_load(conn, current["assigned_agent_id"], +1)
 
     if not changes:
         return current

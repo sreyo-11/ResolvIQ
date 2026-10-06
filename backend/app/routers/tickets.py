@@ -2,7 +2,9 @@ from typing import Annotated
 from uuid import UUID
 
 import psycopg
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, BackgroundTasks
+from app.core.config import settings
+from app.services import pipeline, ticket_service, triage_service
 
 from app.core.db import get_conn
 from app.schemas.ticket import (
@@ -49,3 +51,17 @@ def get_ticket(ticket_id: UUID, conn: Conn):
 @router.patch("/{ticket_id}", response_model=TicketOut)
 def update_ticket(ticket_id: UUID, patch: TicketUpdate, conn: Conn):
     return ticket_service.update_ticket(conn, ticket_id, patch)
+
+@router.post("", response_model=TicketOut, status_code=201)
+def create_ticket(data: TicketCreate, conn: Conn, embedder: EmbedderDep, background: BackgroundTasks):
+    ticket = ticket_service.create_ticket(conn, data, embedder)
+    ticket = triage_service.triage_ticket(conn, ticket["id"])
+    if settings.auto_enrich:
+        background.add_task(pipeline.enrich_ticket, ticket["id"])
+    return ticket
+
+
+@router.post("/{ticket_id}/classify", response_model=TicketOut)
+def classify_ticket(ticket_id: UUID, conn: Conn):
+    """Re-run triage, for example after an agent edits the ticket text."""
+    return triage_service.triage_ticket(conn, ticket_id)

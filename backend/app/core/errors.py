@@ -15,3 +15,12 @@ class NotFoundError(AppError):
 class InvalidTransitionError(AppError):
     status_code = 409
     code = "invalid_status_transition"
+
+class ServiceUnavailableError(AppError):
+    status_code = 503
+    code = "service_unavailable"
+
+
+class UpstreamError(AppError):
+    status_code = 502
+    code = "upstream_error"

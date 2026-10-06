@@ -8,7 +8,7 @@ from app.core import db
 from app.core.config import settings
 from app.core.errors import AppError
 from app.routers import health, tickets
-from app.routers import health, kb, tickets
+from app.routers import health, kb, tickets, classify
 
 
 @asynccontextmanager
@@ -40,3 +40,4 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 app.include_router(health.router)
 app.include_router(tickets.router, prefix="/api/v1")
 app.include_router(kb.router, prefix="/api/v1")
+app.include_router(classify.router, prefix="/api/v1")

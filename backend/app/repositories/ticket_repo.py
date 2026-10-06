@@ -1,19 +1,22 @@
 from typing import Any
 from uuid import UUID
+import numpy as np
 
 import psycopg
 
 TICKET_COLUMNS = (
     "id, subject, body, customer_email, status, category, priority, team, assigned_agent_id, "
-    "classification_confidence, needs_human_triage, reopen_count, queue_length_at_creation, "
-    "created_at, first_response_at, resolved_at, updated_at"
+    "classification_confidence, priority_confidence, classified_by, needs_human_triage, "
+    "extracted, sla_risk, sla_risk_updated_at, reopen_count, queue_length_at_creation, "
+    "agent_load_at_assignment, created_at, first_response_at, resolved_at, updated_at"
 )
-FILTERABLE = ("status", "category", "priority", "team")
 UPDATABLE = {
     "status", "category", "priority", "team", "assigned_agent_id", "classification_confidence",
-    "needs_human_triage", "first_response_at", "resolved_at", "reopen_count", "embedding",
+    "priority_confidence", "classified_by", "needs_human_triage", "extracted", "sla_risk",
+    "sla_risk_updated_at", "agent_load_at_assignment", "first_response_at", "resolved_at",
+    "reopen_count", "embedding",
 }
-
+FILTERABLE = ("status", "category", "priority", "team")
 
 def count_open(conn: psycopg.Connection) -> int:
     row = conn.execute(
@@ -63,3 +66,23 @@ def update(conn: psycopg.Connection, ticket_id: UUID, changes: dict[str, Any]) -
         f"update tickets set {assignments} where id = %s returning {TICKET_COLUMNS}",
         [*[changes[c] for c in cols], ticket_id],
     ).fetchone()
+
+def get_embedding(conn: psycopg.Connection, ticket_id: UUID) -> np.ndarray | None:
+    row = conn.execute("select embedding from tickets where id = %s", (ticket_id,)).fetchone()
+    return row["embedding"] if row else None
+
+
+def list_open_unanswered(conn: psycopg.Connection) -> list[dict]:
+    return conn.execute(
+        f"select {TICKET_COLUMNS} from tickets where first_response_at is null "
+        "and status in ('new','classified','assigned','in_progress') "
+        "and priority is not null and category is not null"
+    ).fetchall()
+
+def list_by_cluster(conn: psycopg.Connection, cluster_id: UUID, limit: int) -> list[dict]:
+    return conn.execute(
+        f"select {TICKET_COLUMNS} from tickets where id in "
+        "(select ticket_id from cluster_members where cluster_id = %s) "
+        "order by created_at desc limit %s",
+        (cluster_id, limit),
+    ).fetchall()

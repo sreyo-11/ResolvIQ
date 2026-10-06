@@ -1,16 +1,4 @@
-CATEGORIES = ["billing", "account", "technical", "shipping", "integrations", "general"]
-PRIORITIES = ["low", "medium", "high", "urgent"]
-
-CATEGORY_TEAM = {
-    "billing": "Billing Support",
-    "account": "Account Security",
-    "technical": "Tech Support",
-    "shipping": "Logistics",
-    "integrations": "Integrations",
-    "general": "General Support",
-}
-
-SLA_MINUTES = {"urgent": 60, "high": 240, "medium": 480, "low": 1440}  # first-response limits
+from app.core.constants import CATEGORIES, CATEGORY_TEAM, PRIORITIES, SLA_MINUTES  # noqa: F401
 
 AGENTS = [
     ("Aarav Sharma", "Billing Support"), ("Meera Iyer", "Billing Support"),

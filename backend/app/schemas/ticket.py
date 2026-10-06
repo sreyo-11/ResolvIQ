@@ -41,6 +41,12 @@ class TicketOut(BaseModel):
     first_response_at: datetime | None
     resolved_at: datetime | None
     updated_at: datetime
+    priority_confidence: float | None = None
+    classified_by: str | None = None
+    extracted: dict = Field(default_factory=dict)
+    sla_risk: float | None = None
+    sla_risk_updated_at: datetime | None = None
+    agent_load_at_assignment: int | None = None
 
 
 class TicketPage(BaseModel):
