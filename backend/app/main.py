@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from app.core import db
 from app.core.config import settings
 from app.core.errors import AppError
-from app.routers import health, tickets, kb, classify, replies
+from app.routers import health, tickets, kb, classify, replies,sla
 
 
 @asynccontextmanager
@@ -41,3 +41,4 @@ app.include_router(tickets.router, prefix="/api/v1")
 app.include_router(kb.router, prefix="/api/v1")
 app.include_router(classify.router, prefix="/api/v1")
 app.include_router(replies.router, prefix="/api/v1")
+app.include_router(sla.router, prefix="/api/v1")

@@ -86,3 +86,10 @@ def list_by_cluster(conn: psycopg.Connection, cluster_id: UUID, limit: int) -> l
         "order by created_at desc limit %s",
         (cluster_id, limit),
     ).fetchall()
+
+def list_at_risk(conn: psycopg.Connection, min_risk: float, limit: int) -> list[dict]:
+    return conn.execute(
+        f"select {TICKET_COLUMNS} from tickets where sla_risk >= %s and first_response_at is null "
+        "and status in ('new','classified','assigned','in_progress') order by sla_risk desc limit %s",
+        (min_risk, limit),
+    ).fetchall()

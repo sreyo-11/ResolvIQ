@@ -7,18 +7,15 @@ from app.core.config import settings
 from app.services import pipeline, ticket_service, triage_service
 
 from app.core.db import get_conn
-from app.schemas.ticket import (
-    Category,
-    Priority,
-    Status,
-    TicketCreate,
-    TicketOut,
-    TicketPage,
-    TicketUpdate,
-)
+from app.schemas.ticket import (Category,Priority,Status,TicketCreate,TicketOut,TicketPage,TicketUpdate)
 from app.services import ticket_service
 from app.services.embeddings import Embedder, get_embedder
 from app.services import extraction
+from app.core.errors import ServiceUnavailableError
+from app.repositories import sla_repo
+from app.schemas.sla import SlaRiskOut
+from app.services import sla
+from app.services.model_store import ModelUnavailable
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 Conn = Annotated[psycopg.Connection, Depends(get_conn)]
@@ -70,3 +67,15 @@ def classify_ticket(ticket_id: UUID, conn: Conn):
 @router.post("/{ticket_id}/extract", response_model=TicketOut)
 def extract_ticket(ticket_id: UUID, conn: Conn):
     return extraction.run_extraction(conn, ticket_id)
+
+@router.get("/{ticket_id}/sla-risk", response_model=SlaRiskOut)
+def sla_risk(ticket_id: UUID, conn: Conn):
+    ticket = ticket_service.get_ticket(conn, ticket_id)
+    try:
+        res = sla.predict_risk(ticket)
+    except ModelUnavailable as exc:
+        raise ServiceUnavailableError(str(exc)) from exc
+    hist = sla_repo.history(conn, ticket_id)
+    if res is None:
+        return SlaRiskOut(applicable=False, history=hist)
+    return SlaRiskOut(applicable=True, history=hist, **res)

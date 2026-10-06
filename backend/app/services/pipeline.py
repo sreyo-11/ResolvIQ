@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.core.db import get_pool
 from app.core.config import settings
-from app.services import extraction, rag
+from app.services import extraction, rag, sla_service
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +15,10 @@ def _draft(conn, ticket_id):
     if settings.auto_draft:
         rag.draft_reply(conn, ticket_id)
 
-_STAGES: list[tuple[str, callable]] = [("extract", _extract), ("draft", _draft)]  # (name, fn(conn, ticket_id))
+def _sla(conn, ticket_id):
+    sla_service.score_ticket(conn, ticket_id)
+
+_STAGES: list[tuple[str, callable]] = [("sla", _sla),("extract", _extract), ("draft", _draft)]  # (name, fn(conn, ticket_id))
 
 
 def enrich_ticket(ticket_id: UUID) -> None:
