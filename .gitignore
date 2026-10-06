@@ -9,3 +9,5 @@ __pycache__/
 .model_cache/
 node_modules/
 .next/
+ml/.venv-gpu/
+ml/artifacts/

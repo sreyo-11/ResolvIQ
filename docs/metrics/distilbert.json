@@ -1,0 +1,7 @@
+{
+  "model": "distilbert-base-uncased",
+  "test_acc": 0.9640522875816994,
+  "test_macro_f1": 0.9649511605205646,
+  "train_seconds": 206.1,
+  "peak_vram_gb": 1.43
+}

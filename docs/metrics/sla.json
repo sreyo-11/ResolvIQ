@@ -1,0 +1,55 @@
+{
+  "baseline_priority_only": {
+    "pr_auc": 0.46265440802905206,
+    "pr_auc_at_creation": 0.36467980550301826,
+    "roc_auc": 0.6904680726705956,
+    "brier": 0.20063975572217588,
+    "base_rate": 0.31869918699186994
+  },
+  "logreg": {
+    "pr_auc": 0.5999875345466649,
+    "pr_auc_at_creation": 0.48522962274712433,
+    "roc_auc": 0.7362646729336124,
+    "brier": 0.18266361261107875,
+    "base_rate": 0.31869918699186994
+  },
+  "hist_gb": {
+    "pr_auc": 0.5028212643707386,
+    "pr_auc_at_creation": 0.3762229098784853,
+    "roc_auc": 0.6843553650577175,
+    "brier": 0.20569413638472156,
+    "base_rate": 0.31869918699186994
+  },
+  "operating_point": {
+    "model": "logreg",
+    "threshold": 0.20133107014493543,
+    "test_precision": 0.37446808510638296,
+    "test_recall": 0.8979591836734694
+  },
+  "top_features": [
+    {
+      "feature": "elapsed_frac",
+      "importance": 0.1269996246947363
+    },
+    {
+      "feature": "priority_rank",
+      "importance": 0.08612097441609194
+    },
+    {
+      "feature": "is_weekend",
+      "importance": 0.04958701349601606
+    },
+    {
+      "feature": "agent_load",
+      "importance": 0.012962714927499074
+    },
+    {
+      "feature": "hour",
+      "importance": 0.012095042599606786
+    },
+    {
+      "feature": "queue_length",
+      "importance": 0.004429410478946849
+    }
+  ]
+}
