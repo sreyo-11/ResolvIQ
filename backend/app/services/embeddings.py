@@ -1,7 +1,6 @@
 from functools import lru_cache
 
 import numpy as np
-from fastembed import TextEmbedding
 
 from app.core.config import settings
 
@@ -10,6 +9,7 @@ class Embedder:
     """Thin wrapper over an ONNX embedding model (CPU, ~250 MB RAM)."""
 
     def __init__(self, model_name: str, cache_dir: str, expected_dim: int):
+        from fastembed import TextEmbedding
         self._model = TextEmbedding(model_name=model_name, cache_dir=cache_dir)
         self.dim = expected_dim
 
