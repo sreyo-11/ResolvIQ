@@ -9,6 +9,7 @@ from app.repositories import ticket_repo
 from app.schemas.ticket import TicketCreate, TicketUpdate
 from app.services.embeddings import Embedder, build_ticket_text
 from app.repositories import agent_repo
+from app.repositories import event_repo
 
 # Lifecycle: new -> classified -> assigned -> in_progress -> resolved -> closed
 ALLOWED_TRANSITIONS: dict[str, set[str]] = {
@@ -37,6 +38,7 @@ def create_ticket(conn: psycopg.Connection, data: TicketCreate, embedder: Embedd
         queue_length=queue_length,
         embedding=embedding,
     )
+    event_repo.emit(conn, "ticket_created", row["id"], event_repo.ticket_payload(row))
     conn.commit()
     return row
 
@@ -79,5 +81,7 @@ def update_ticket(conn: psycopg.Connection, ticket_id: UUID, patch: TicketUpdate
     if not changes:
         return current
     row = ticket_repo.update(conn, ticket_id, changes)
+    event_repo.emit(conn, "ticket_updated", ticket_id,
+                    {**event_repo.ticket_payload(row), "previous_status": current["status"]})
     conn.commit()
     return row

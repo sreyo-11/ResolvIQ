@@ -11,6 +11,7 @@ from app.repositories import kb_repo, reply_repo, ticket_repo
 from app.services import llm
 from app.services.embeddings import build_ticket_text, get_embedder
 from app.services.pii import mask_pii
+from app.repositories import event_repo
 
 log = logging.getLogger(__name__)
 
@@ -92,5 +93,7 @@ def draft_reply(conn: psycopg.Connection, ticket_id: UUID) -> DraftResult:
     
     reply = reply_repo.insert(conn, ticket_id=ticket_id, draft_text=text, sources=sources,
                               warnings=warnings, model=result.model, top_similarity=top)
+    event_repo.emit(conn, "draft_ready", ticket_id,
+                    {"subject": ticket["subject"], "sources": len(sources), "warnings": len(warnings)})
     conn.commit()
     return DraftResult(True, None, top, reply)

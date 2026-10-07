@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.cluster import HDBSCAN
 
 from app.core.config import settings
-from app.repositories import cluster_repo
+from app.repositories import cluster_repo, event_repo
 from app.services import llm
 from app.services.pii import mask_pii
 
@@ -101,11 +101,13 @@ def refresh_clusters(conn, *, days: int = 7, min_cluster_size: int = 6, max_summ
     clusters.sort(key=lambda c: (-c["trend_score"], -c["size"]))
 
     old, budget = cluster_repo.load_previous(conn), max_summaries
-    for c in clusters:  # trending clusters come first, so they get the LLM budget
+    for c in clusters:
         ids = set(c["members"])
         match = max(old, key=lambda o: jaccard(ids, o["ids"]), default=None)
-        if match and match["title"] and jaccard(ids, match["ids"]) >= 0.6:
-            c["title"], c["summary"] = match["title"], match["summary"]  # unchanged: reuse, no LLM call
+        reused = bool(match and match["title"] and jaccard(ids, match["ids"]) >= 0.6)
+        c["is_new"] = not reused
+        if reused:
+            c["title"], c["summary"] = match["title"], match["summary"]
         elif budget > 0:
             c["title"], c["summary"] = summarize(c["reps"], c["size"], c["top_category"])
             budget -= 1
@@ -113,6 +115,10 @@ def refresh_clusters(conn, *, days: int = 7, min_cluster_size: int = 6, max_summ
             c["title"], c["summary"] = Counter(r["subject"] for r in c["reps"]).most_common(1)[0][0], None
 
     cluster_repo.replace_all(conn, clusters, start, now)  # one transaction: delete + insert
+    
+    event_repo.emit_many(conn, [
+        ("cluster_trending", None, {"title": c["title"], "size": c["size"], "trend_score": c["trend_score"]})
+        for c in clusters if c["is_trending"] and c["is_new"]])
     conn.commit()
     return {"tickets_in_window": len(cur), "clusters": len(clusters),
             "trending": sum(c["is_trending"] for c in clusters)}
