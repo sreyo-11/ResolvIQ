@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
-import numpy as np
 
+import numpy as np
 import psycopg
 
 TICKET_COLUMNS = (

@@ -34,7 +34,7 @@ def run_job(conn, embedder, name: str, select_sql: str, update_sql: str, batch: 
         part = rows[i:i + batch]
         vectors = embedder.embed_batch([r["text"] for r in part], batch_size=batch)
         with conn.cursor() as cur:
-            cur.executemany(update_sql, [(v, r["id"]) for v, r in zip(vectors, part)])
+            cur.executemany(update_sql, [(v, r["id"]) for v, r in zip(vectors, part,strict=True)])
         conn.commit()  # commit per batch -> resumable
         print(f"  {min(i + batch, len(rows))}/{len(rows)}")
     print(f"[{name}] done in {time.time() - t0:.1f}s")

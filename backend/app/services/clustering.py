@@ -82,12 +82,12 @@ def refresh_clusters(conn, *, days: int = 7, min_cluster_size: int = 6, max_summ
     Xn = normalize(_embedding_matrix(cur)) if cur else np.empty((0, 384))
     groups = find_clusters(Xn, min_cluster_size)
     cents = [centroid(Xn[idx]) for idx in groups]
-    taus = [float(np.percentile(Xn[idx] @ c, 10)) for idx, c in zip(groups, cents)]
+    taus = [float(np.percentile(Xn[idx] @ c, 10)) for idx, c in zip(groups, cents,strict=True)]
     prev_X = _embedding_matrix(prev) if prev else np.empty((0, Xn.shape[1]))
     prev_n = previous_counts(prev_X, cents, taus)
 
     clusters = []
-    for idx, c, pn in zip(groups, cents, prev_n):
+    for idx, c, pn in zip(groups, cents, prev_n, strict=True):
         members = [cur[i] for i in idx]
         order = np.argsort(-(Xn[idx] @ c))
         cats = Counter(m["category"] for m in members if m["category"])

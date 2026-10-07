@@ -8,8 +8,12 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.inspection import permutation_importance
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (average_precision_score, brier_score_loss, precision_recall_curve,
-                             roc_auc_score)
+from sklearn.metrics import (
+    average_precision_score,
+    brier_score_loss,
+    precision_recall_curve,
+    roc_auc_score,
+)
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -107,7 +111,7 @@ def main() -> None:
           f"{report['operating_point']['test_precision']:.2f} recall={report['operating_point']['test_recall']:.2f}")
 
     imp = permutation_importance(model, Xte, yte, scoring="average_precision", n_repeats=5, random_state=0)
-    top = sorted(zip(FEATURE_NAMES, imp.importances_mean), key=lambda t: -t[1])[:6]
+    top = sorted(zip(FEATURE_NAMES, imp.importances_mean,strict=True), key=lambda t: -t[1])[:6]
     report["top_features"] = [{"feature": f, "importance": float(v)} for f, v in top]
     print("top features:", ", ".join(f"{f} ({v:.3f})" for f, v in top))
 

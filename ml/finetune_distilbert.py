@@ -9,7 +9,11 @@ from pathlib import Path
 import torch
 from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader, TensorDataset
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    get_linear_schedule_with_warmup,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 CATEGORIES = ["billing", "account", "technical", "shipping", "integrations", "general"]

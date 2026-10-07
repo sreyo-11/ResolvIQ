@@ -27,7 +27,7 @@ class Flags:
 def _predict(bundle: dict, text: str, embedding: np.ndarray):
     x = [text] if bundle["kind"] == "text" else embedding.reshape(1, -1)
     model = bundle["model"]
-    probs = {str(c): float(p) for c, p in zip(model.classes_, model.predict_proba(x)[0])}
+    probs = {str(c): float(p) for c, p in zip(model.classes_, model.predict_proba(x)[0], strict=True)}
     label = max(probs, key=probs.get)
     return label, probs[label], probs
 

@@ -2,29 +2,29 @@ from typing import Annotated
 from uuid import UUID
 
 import psycopg
-from fastapi import APIRouter, Depends, Query, BackgroundTasks
-from app.core.config import settings
-from app.services import pipeline, ticket_service, triage_service
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 
+from app.core.config import settings
 from app.core.db import get_conn
-from app.schemas.ticket import (Category,Priority,Status,TicketCreate,TicketOut,TicketPage,TicketUpdate)
-from app.services import ticket_service
-from app.services.embeddings import Embedder, get_embedder
-from app.services import extraction
 from app.core.errors import ServiceUnavailableError
 from app.repositories import sla_repo
 from app.schemas.sla import SlaRiskOut
-from app.services import sla
+from app.schemas.ticket import (
+    Category,
+    Priority,
+    Status,
+    TicketCreate,
+    TicketOut,
+    TicketPage,
+    TicketUpdate,
+)
+from app.services import extraction, pipeline, sla, ticket_service, triage_service
+from app.services.embeddings import Embedder, get_embedder
 from app.services.model_store import ModelUnavailable
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 Conn = Annotated[psycopg.Connection, Depends(get_conn)]
 EmbedderDep = Annotated[Embedder, Depends(get_embedder)]
-
-@router.post("", response_model=TicketOut, status_code=201)
-def create_ticket(data: TicketCreate, conn: Conn, embedder: EmbedderDep):
-    return ticket_service.create_ticket(conn, data, embedder)
-
 
 @router.get("", response_model=TicketPage)
 def list_tickets(

@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from app.core import db
 from app.core.config import settings
 from app.core.errors import AppError
-from app.routers import classify, clusters, health, kb, replies, sla, tickets, jobs
+from app.routers import classify, clusters, health, jobs, kb, replies, sla, tickets
 
 
 @asynccontextmanager

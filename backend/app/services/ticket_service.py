@@ -5,11 +5,9 @@ from uuid import UUID
 import psycopg
 
 from app.core.errors import InvalidTransitionError, NotFoundError
-from app.repositories import ticket_repo
+from app.repositories import agent_repo, event_repo, ticket_repo
 from app.schemas.ticket import TicketCreate, TicketUpdate
 from app.services.embeddings import Embedder, build_ticket_text
-from app.repositories import agent_repo
-from app.repositories import event_repo
 
 # Lifecycle: new -> classified -> assigned -> in_progress -> resolved -> closed
 ALLOWED_TRANSITIONS: dict[str, set[str]] = {
